@@ -6,6 +6,7 @@ use App\Http\Controllers\KasirController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\OrderController;
 use App\Mail\WelcomeMail;
 use App\Mail\NotifyUser;
 use App\Models\User;
@@ -129,6 +130,24 @@ Route::get('/test-register', function () {
     return 'User terdaftar & email dikirim! Periksa Mailtrap, lalu buka /dashboard.';
 });
 
+// Acara 32 - Event Broadcast & Reverb (Integrasi & Pengujian)
+Route::post('/orders', [OrderController::class, 'store'])
+    ->middleware('auth')
+    ->name('orders.store');
+
+// SEMENTARA: login otomatis buat tes (hapus setelah selesai)
+Route::get('/auto-login', function () {
+    $user = User::first();
+
+    $user->forceFill([
+        'email_verified_at' => $user->email_verified_at ?? now(),
+    ])->save();
+
+    Auth::login($user);
+
+    return redirect('/dashboard');
+});
+
 // Profile
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])
@@ -141,4 +160,4 @@ Route::middleware('auth')->group(function () {
         ->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__.'/auth.php';    
